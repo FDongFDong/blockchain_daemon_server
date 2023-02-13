@@ -1,0 +1,5 @@
+[network]
+url = "ws://localhost:7545"
+
+[db]
+host = "mongodb://localhost:27017"
