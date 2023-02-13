@@ -16,11 +16,17 @@
 - golang
 - mongoDB
 
+## Getting Start
+
+- ganache 실행
+  - config.toml 파일에 맞게 포트번호 설정
+- mongoDB 실행
+
 ## 기능 설명
 
 ### ethclient 초기화
 
-```solidity
+```go
 client, err := ethclient.Dial(cf.Network.URL)
 	if err != nil {
 		log.Fatal(err)
@@ -29,7 +35,7 @@ client, err := ethclient.Dial(cf.Network.URL)
 
 ### subscribe
 
-```solidity
+```go
 headers := make(chan *types.Header)
 	sub, err := client.SubscribeNewHead(context.Background(), headers)
 	if err != nil {
@@ -39,7 +45,7 @@ headers := make(chan *types.Header)
 
 ### 채널을 이용한 수신
 
-```solidity
+```go
 for {
 		select {
 		case err := <-sub.Err():
