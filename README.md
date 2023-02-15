@@ -12,7 +12,6 @@
 		- [ethclient 초기화](#ethclient-초기화)
 		- [subscribe](#subscribe)
 		- [채널을 이용한 수신](#채널을-이용한-수신)
-	- [소스코드](#소스코드)
 - [ERC20 트랜잭션 발생 시 Catch하기](#erc20-transaction-정보-가져오기)
 	- [ERC20 Transaction 필러링](#erc20-transaction-필러링)
 	- [ERC20 기능 설명](#기능-설명)
