@@ -4,9 +4,9 @@
 
 # 목차
 - [Daemon Server](#daemon-server)
-- [목차](#목차)
-	- [동작 방식](#동작-방식)
-	- [Blockchain Network에서 생성된 Block의 정보와 Transaction 정보 가져오기](#blockchain-network에서-생성된-block의-정보와-transaction-정보-가져오기)
+
+- [동작 방식](#동작-방식)
+- [Blockchain Network에서 생성된 Block의 정보와 Transaction 정보 가져오기](#blockchain-network에서-생성된-block의-정보와-transaction-정보-가져오기)
 	- [stack](#stack)
 	- [Getting Start](#getting-start)
 	- [기능 설명](#기능-설명)
@@ -22,7 +22,7 @@
 
 블록체인 Daemon으로는 전체 모든 트랜잭션과 블록을 수집할 수도(ex. 블록 익스플로러), 특정한 스마트 컨트랙트 주소(서비스에서 사용하는) 또는 사용자의 지갑 주소를 포함하는 트랜잭션과 블록만을 수집할 수도 있습니다.
 
-## Blockchain Network에서 생성된 Block의 정보와 Transaction 정보 가져오기
+# Blockchain Network에서 생성된 Block의 정보와 Transaction 정보 가져오기
 
 ## stack
 - ganache
