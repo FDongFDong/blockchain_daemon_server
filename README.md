@@ -4,8 +4,7 @@
 
 # 목차
 - [Daemon Server](#daemon-server)
-
-- [동작 방식](#동작-방식)
+	- [동작 방식](#동작-방식)
 - [Blockchain Network에서 생성된 Block의 정보와 Transaction 정보 가져오기](#blockchain-network에서-생성된-block의-정보와-transaction-정보-가져오기)
 	- [stack](#stack)
 	- [Getting Start](#getting-start)
