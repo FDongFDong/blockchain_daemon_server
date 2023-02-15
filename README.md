@@ -8,13 +8,14 @@
 	- [stack](#stack)
 	- [Getting Start](#getting-start)
 - [Block의 정보와 Transaction 정보 가져오기](#block-transaction-정보-가져오기)
-	- [기능 설명](#기능-설명)
-		- [ethclient 초기화](#ethclient-초기화)
-		- [subscribe](#subscribe)
-		- [채널을 이용한 수신](#채널을-이용한-수신)
-- [ERC20 트랜잭션 발생 시 Catch하기](#erc20-transaction-정보-가져오기)
-	- [ERC20 Transaction 필러링](#erc20-transaction-필러링)
-	- [ERC20 기능 설명](#기능-설명)
+	- [ethclient 초기화](#ethclient-초기화)
+	- [subscribe](#subscribe)
+	- [채널을 이용한 수신](#채널을-이용한-수신)
+- [ERC20 Transaction 정보 가져오기](#erc20-transaction-정보-가져오기)
+	- [ERC20 결과](#erc20-결과)
+- [Contract Address Transaction 가져오기](#contract-address-transaction-가져오기)
+	- [Contract Address 결과](#contract-address-결과) 	
+	
 
 ## 동작 방식
 <img width="646" alt="image" src="https://user-images.githubusercontent.com/20445415/218470011-794318af-4199-4444-8c84-923df245d05d.png">
@@ -123,37 +124,152 @@ for {
 
 ___
 
-# ERC20 Transaction 정보 가져오기
+# ERC20 Transaction 정보 가져오기 
+- main.go
+    
+    ```go
+    // input Data에 데이터가 있으면 함수를 호출할 가능성이 있다.
+    if len(tx.Data()) != 0 {
+    	// 실제 ERC20 토큰은 input datad안에 들어있다.
+    	to, value := erc20.ERC20Transaction(hex.EncodeToString(tx.Data()))
+    	if to != "" {
+    		symbol, name, decimal := erc20.GetContractInfo(client, tx.To())
+    		fmt.Println("ERC20 Contract Address: ", tx.To().Hex())
+    		fmt.Println("ERC20 Contract to Name: ", name)
+    		fmt.Println("ERC20 Contract to Symbol: ", symbol)
+    		fmt.Println("ERC20 Contract to Decimals: ", decimal)
+    		fmt.Println("ERC20 Transfer to Address: ", to)
+    		if tokenValue := utils.GetRealValue(value, decimal); tokenValue != "" {
+    			fmt.Println("ERC20 value :", tokenValue)
+    		}
+    	}
+    ```
+    
+    - 트랜잭션에 input data가 포함되어 있으면 함수를 호출할 가능성이 있음을 확인하고
+    - input data를 파싱한다.
+- erc20/erc20.go
+    
+    ```go
+    func GetContractInfo(client *ethclient.Client, to *common.Address) (string, string, uint8) {
+    	instance, err := contracts.NewContracts(*to, client)
+    	if err != nil {
+    		log.Fatal(err)
+    	}
+    	name, err := instance.Name(&bind.CallOpts{})
+    	if err != nil {
+    		log.Fatal(err)
+    	}
+    	symbol, err := instance.Symbol(&bind.CallOpts{})
+    	if err != nil {
+    		log.Fatal(err)
+    	}
+    	decimals, err := instance.Decimals(&bind.CallOpts{})
+    	if err != nil {
+    		log.Fatal(err)
+    	}
+    	return name, symbol, decimals
+    
+    }
+    ```
+    
+- erc20/erc20.go
+    
+    ```go
+    func ERC20Transaction(data string) (string, string) {
+    	// ERC20 토큰은 136개의 글자수로 이루어져 있다.
+    	// a9059cbb0000000000000000000000004ebbd4881a45b836bac17ea52f1bcef72b787b0e00000000000000000000000000000000000000000000010f0cf064dd59200000
+    
+    	if len(data) != 136 {
+    		return "", "0"
+    	} else {
+    		// 앞 8자리는 methodID
+    		methodID := data[:8]
+    		// 32~72는 to Address
+    		to := data[32:72]
+    		// 72~136은 토큰 양
+    		value := data[72:136]
+    		if methodID != "a9059cbb" {
+    			return "", "0"
+    		}
+    		i := new(big.Int)
+    		// 앞에 0 모두 제거
+    		valueStr := strings.TrimLeft(value, "0")
+    		i.SetString(valueStr, 16)
+    		return to, i.String()
+    	}
+    }
+    ```
+    
+    - data의 길이가 136개의 글자수를 가지고 있으면 ERC20의 토큰일 수 있다.
+    - 8자리가 “a9059cbb”로 시작하면 ERC20이다.
+        - 32~72자리에 있는 데이터는 `To Address` 이다.
+            - 해당 주소에서 `transfer(address,uint256)` 를 입력하면 `“a9059cbb”` 가 출력되는 것을 확인할 수 있다.
+            
+            [Keccak-256](https://emn178.github.io/online-tools/keccak_256.html)
+            
+        - 72~136 자리는 토큰의`Amount`
+            - 앞에 0을 모두 제거한다.
+    - value는 계산해서 처리해줘야한다.
+- utils/utils.go
+    
+    ```go
+    func GetRealValue(value string, decimal uint8) string {
+    	n := new(big.Int)
+    	pw := int(math.Pow(float64(10), float64(decimal)))
+    	i := new(big.Int).SetUint64(uint64(pw))
+    	n, ok := n.SetString(value, 10)
+    	if !ok {
+    		return ""
+    	} else {
+    		result := big.NewInt(0)
+    		result.Div(n, i)
+    		return result.String()
+    	}
+    }
+    ```
+## ERC20 결과
 
-## ERC20 Transaction 필러링
-	```go
-	func ERC20Transaction(data string) (string, string) {
-		// ERC20 토큰은 136개의 글자수로 이루어져 있다.
-		// a9059cbb0000000000000000000000004ebbd4881a45b836bac17ea52f1bcef72b787b0e00000000000000000000000000000000000000000000010f0cf064dd59200000
-
-		if len(data) != 136 {
-			return "", "0"
-		} else {
-			// 앞 8자리는 methodID
-			methodID := data[:8]
-			// 32~72는 to Address
-			to := data[32:72]
-			// 72~136은 토큰 양
-			value := data[72:136]
-			if methodID != "a9059cbb" {
-				return "", "0"
-			}
-			i := new(big.Int)
-			// 앞에 0 모두 제거
-			valueStr := strings.TrimLeft(value, "0")
-			i.SetString(valueStr, 16)
-			return to, i.String()
-		}
-	}
-	```
-
-## 결과
 실제 위믹스 Testnet에서의 사용 예시
 
 <img width="1367" alt="image" src="https://user-images.githubusercontent.com/20445415/218989157-6011fd2c-c70d-4b88-a2e6-29e773317a6e.png">
+
+# Contract Address Transaction 가져오기
+
+- main.go
+    
+    ```go
+    if contractAddress, err := utils.GetContractAddress(client, tx.Hash()); err != nil {
+    	log.Fatal(err)
+    } else {
+    	fmt.Println("GetContractAddress : ", contractAddress)
+    }
+    ```
+    
+    - GetContractAddress
+        - 트랜잭션 해시값을 받는다.
+- utils/utils.go
+    
+    ```go
+    func GetContractAddress(client *ethclient.Client, txid common.Hash) (string, error) {
+    	receipt_tx, err := client.TransactionReceipt(context.Background(), txid)
+    	if err != nil {
+    		return "", err
+    	}
+    	
+    	return receipt_tx.ContractAddress.Hex(), nil
+    }
+    ```
+    
+    - Receipt에 있는 Contract Address를 가져온다.
+    
+
+## Contract Address 결과
+- 배포 진행
+  
+  ![image](https://user-images.githubusercontent.com/20445415/218993799-b7fdf847-2509-428b-a7b7-3468381d2b67.png)
+- 결과 
+  
+  ![image](https://user-images.githubusercontent.com/20445415/218993901-628e0032-1563-4ca4-9960-9bebdd7ed77f.png)
+ 
+
 
