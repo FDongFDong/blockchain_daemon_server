@@ -23,7 +23,7 @@
 
 블록체인 Daemon으로는 전체 모든 트랜잭션과 블록을 수집할 수도(ex. 블록 익스플로러), 특정한 스마트 컨트랙트 주소(서비스에서 사용하는) 또는 사용자의 지갑 주소를 포함하는 트랜잭션과 블록만을 수집할 수도 있습니다.
 
-## stack
+## Stack
 - ganache
 - golang
 - mongoDB
@@ -153,5 +153,7 @@ ___
 	```
 
 ## 결과
+실제 위믹스 Testnet에서의 사용 예시
+
 <img width="1367" alt="image" src="https://user-images.githubusercontent.com/20445415/218989157-6011fd2c-c70d-4b88-a2e6-29e773317a6e.png">
 
