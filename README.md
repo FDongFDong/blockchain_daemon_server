@@ -7,7 +7,7 @@
 	- [동작 방식](#동작-방식)
 	- [stack](#stack)
 	- [Getting Start](#getting-start)
-- [Blockchain Network에서 생성된 Block의 정보와 Transaction 정보 가져오기](#blockchain-network에서-생성된-block의-정보와-transaction-정보-가져오기)
+- [Block의 정보와 Transaction 정보 가져오기](#block-transaction-정보-가져오기)
 	- [기능 설명](#기능-설명)
 		- [ethclient 초기화](#ethclient-초기화)
 		- [subscribe](#subscribe)
@@ -34,7 +34,7 @@
   - config.toml 파일에 맞게 포트번호 설정
 - mongoDB 실행
 
-# Blockchain Network에서 생성된 Block의 정보와 Transaction 정보 가져오기
+# Block Transaction 정보 가져오기
 
 ## ethclient 초기화
 
@@ -118,7 +118,7 @@ for {
 		}
 	}
 ```
-## 소스코드
+
 > <https://github.com/FDongFDong/blockchain_daemon_server/tree/main/block_trasaction>
 
 ___
